@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=p, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <script src="lib/jquery-3.7.1.js"></script>
+    <script>
+      // json is fetching data  fetching the data is by ajax
+      //
+      $(function () {
+        render();
+        $("#addbtn").on("click", addNewInfo);
+        $("#info-body").on("click", "button[data-deleteid]", deleteHero);
+        $("#info-body").on("click", "button[data-editid]", editHero);
+        $("#updatebtn").on("click", UpdateHero);
+        $(".Updatedhero").hide();
+      });
+
+      // add the to server
+      function addNewInfo() {
+        let htitile = $("#htitile").val();
+        let hfname = $("#hfname").val();
+        let hlname = $("#hlname").val();
+        let heamil = $("#heamil").val();
+        let hcity = $("#hcity").val();
+        if (htitile && hfname && hlname && heamil && hcity) {
+          let nhero = {
+            title: htitile,
+            firstName: hfname,
+            lastName: hlname,
+            email: heamil,
+            city: hcity,
+          };
+          $.ajax({
+            url: "/data",
+            method: "post",
+            data: JSON.stringify(nhero),
+            contentType: "application/json",
+            success: function (res) {
+              // console.log(res);
+              $("#htitile").val("");
+              $("#hfname").val("");
+              $("#hlname").val("");
+              $("#heamil").val("");
+              $("#hcity").val("");
+              render();
+            },
+            error: function (err) {
+              console.log(err);
+            },
+          });
+        } else {
+          alert("fill all the blank details ⚠️ ");
+        }
+      }
+
+      // delete the data
+      function deleteHero(evt) {
+        $.ajax({
+          url: "/delete/" + evt.target.getAttribute("data-deleteid"),
+          method: "delete",
+          success: function (res) {
+            console.log(res);
+            render();
+          },
+          error: function (err) {
+            console.log("Error", err);
+          },
+        });
+      }
+
+      // edit data from table
+      function editHero(evt) {
+        $.ajax({
+          url: "/updata/" + evt.target.getAttribute("data-editid"),
+          method: "get",
+          success: function (res) {
+            console.log(res);
+            $("#e_hid").val(res._id);
+            $("#e_htitile").val(res.title);
+            $("#e_hfname").val(res.firstName);
+            $("#e_hlname").val(res.lastName);
+            $("#e_heamil").val(res.email);
+            $("#e_hcity").val(res.city);
+            $(".Updatedhero").show(500);
+            $(".add-info").hide(500);
+          },
+          error: function (err) {
+            console.log("Error", err);
+          },
+        });
+      }
+      // updated
+      function UpdateHero() {
+        let hid = $("#e_hid").val();
+        let htitile = $("#e_htitile").val();
+        let hfname = $("#e_hfname").val();
+        let hlname = $("#e_hlname").val();
+        let heamil = $("#e_heamil").val();
+        let hcity = $("#e_hcity").val();
+
+        let ehro = {
+          title: htitile,
+          firstName: hfname,
+          lastName: hlname,
+          email: heamil,
+          city: hcity,
+        };
+        $.ajax({
+          url: "/updata/" + hid,
+          method: "post",
+          data: JSON.stringify(ehro),
+          contentType: "application/json",
+          success: function (res) {
+            // console.log(res);
+            $("#e_hid").val("");
+            $("#e_htitile").val("");
+            $("#e_hfname").val("");
+            $("#e_hlname").val("");
+            $("#e_heamil").val("");
+            $("#e_hcity").val("");
+            $(".Updatedhero").hide(500);
+            $(".add-info").show(500);
+            render();
+          },
+          error: function (err) {
+            console.log(err);
+          },
+        });
+      }
+
+      // re creating the data of body of the table
+      function render() {
+        $("#info-body").empty();
+        $.ajax({
+          url: "/data",
+          method: "get",
+          success: (res) => {
+            console.log(res);
+            res.forEach((val, ind) => {
+              $("#info-body").append(`
+                        <tr>
+                          <td>${ind + 1} </td>
+                          <td>${val.title}</td>
+                          <td>${val.firstName}</td>
+                          <td>${val.lastName}</td>
+                          <td>${val.email}</td>
+                          <td>${val.city}</td>
+                          <td>
+                            <button data-editid="${
+                              val._id
+                            } " type="button" class="btn btn-primary">Edit
+                            </button>
+                          </td>
+                          <td>
+                            <button data-deleteid="${
+                              val._id
+                            }" type="button" class="btn btn-danger">Delete</button>
+                          </td>
+                        </tr>
+                          `);
+            });
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center mt-5">Inforamation Detail</h1>
+      <div class="add-info">
+        <div class="mb-3">
+          <label for="htitile" class="form-label">Title</label>
+          <input type="text" class="form-control" id="htitile" />
+        </div>
+        <div class="mb-3">
+          <label for="hfname" class="form-label">FirstName</label>
+          <input type="text" class="form-control" id="hfname" />
+        </div>
+        <div class="mb-3">
+          <label for="hlname" class="form-label">LastName</label>
+          <input type="text" class="form-control" id="hlname" />
+        </div>
+        <div class="mb-3">
+          <label for="heamil" class="form-label">Email</label>
+          <input type="text" class="form-control" id="heamil" />
+        </div>
+        <div class="mb-3">
+          <label for="hcity" class="form-label">Address</label>
+          <input type="text" class="form-control" id="hcity" />
+        </div>
+        <div class="col-auto">
+          <button id="addbtn" type="submit" class="btn btn-primary mb-3">
+            Adding Details
+          </button>
+        </div>
+      </div>
+      <!-- Updated -->
+      <div class="Updatedhero">
+        <h2>Updated table</h2>
+        <div class="mb-3">
+          <label for="e_htitile" class="form-label">Title</label>
+          <input type="text" class="form-control" id="e_htitile" />
+          <input type="hidden" class="form-control" id="e_hid" />
+        </div>
+        <div class="mb-3">
+          <label for="e_hfname" class="form-label">FirstName</label>
+          <input type="text" class="form-control" id="e_hfname" />
+        </div>
+        <div class="mb-3">
+          <label for="e_hlname" class="form-label">LastName</label>
+          <input type="text" class="form-control" id="e_hlname" />
+        </div>
+        <div class="mb-3">
+          <label for="e_heamil" class="form-label">Email</label>
+          <input type="text" class="form-control" id="e_heamil" />
+        </div>
+        <div class="mb-3">
+          <label for="e_hcity" class="form-label">Address</label>
+          <input type="text" class="form-control" id="e_hcity" />
+        </div>
+        <div class="col-auto">
+          <button id="updatebtn" type="submit" class="btn btn-primary mb-3">
+            Confirm Update data
+          </button>
+        </div>
+      </div>
+      <hr />
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Sl</th>
+            <th>Title</th>
+            <th>FirstName</th>
+            <th>LastName</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody id="info-body"></tbody>
+      </table>
+    </div>
+  </body>
+</html>
