@@ -1,0 +1,16 @@
+name : admin dbusername
+ps : fs678dde
+
+recode : hero
+collection : heros
+dbname : onlineDB
+
+
+
+_id  67ecd1a082642b2b4534c5c3 ojectId
+title "Student"               string
+firstName "Kuruba"            string 
+lastName "Ramesh"            string 
+email "Krameshr@348gmail.com" string
+city "Hindupram"              string   
+
